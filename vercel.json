@@ -1,0 +1,5 @@
+{
+  "buildCommand": "prisma migrate deploy && npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}

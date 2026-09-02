@@ -1,0 +1,64 @@
+// 千葉さん向け「勉強中の不安をポジティブに変える」アプリ
+// データベース：Vercel経由のPostgres（実体はNeon）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // VercelのNeon連携が発行する変数名（プロジェクト名プレフィックス付き）
+  url       = env("help_koumuin_POSTGRES_PRISMA_URL")
+  directUrl = env("help_koumuin_POSTGRES_URL_NON_POOLING")
+}
+
+// 匿名ユーザー（端末ごとに発行したIDで識別する。ログイン機能は持たない）
+model User {
+  id          String   @id @default(cuid())
+  // イレギュラーケース5：別人対策のための初回選択項目。未選択ならnullのまま=汎用フォールバック
+  examType    String?
+  phase       String?
+  createdAt   DateTime @default(now())
+  lastVisitAt DateTime @default(now())
+
+  checkIns  CheckIn[]
+  anxieties AnxietyEntry[]
+  studyLogs StudyLog[]
+}
+
+// ②最初の画面での気分チェックイン
+model CheckIn {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ③今日の不安の一言入力。isDraft=trueの間はイレギュラーケース4（中断）の下書き
+model AnxietyEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  quickTag  String?
+  isDraft   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ③その日の勉強内容の記録（「積み上げ」の可視化に使う）
+model StudyLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  studyDate DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

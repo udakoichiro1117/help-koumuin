@@ -1,0 +1,27 @@
+{
+  "name": "help-koumuin",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "forwardPorts": [3000, 5173],
+  "portsAttributes": {
+    "3000": { "label": "Vercel dev (api/)" },
+    "5173": { "label": "Vite dev server" }
+  },
+  "postCreateCommand": "npm install -g vercel && if [ -f package.json ]; then npm install; fi",
+  "remoteUser": "node"
+}
