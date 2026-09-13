@@ -46,9 +46,9 @@ export function getStudyLogs(userId) {
   return request(`/api/studylog?userId=${encodeURIComponent(userId)}`)
 }
 
-export function postStudyLog(userId, content) {
+export function postStudyLog(userId, content, minutes) {
   return request('/api/studylog', {
     method: 'POST',
-    body: JSON.stringify({ userId, content }),
+    body: JSON.stringify({ userId, content, minutes }),
   })
 }

@@ -15,13 +15,17 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { userId, content } = req.body ?? {}
+    const { userId, content, minutes } = req.body ?? {}
     if (!userId || !content || !String(content).trim()) {
       return res.status(400).json({ error: 'userId and content are required' })
     }
 
+    // v2.0：勉強時間（分）。数値として扱えない場合はnullのまま保存する
+    const parsedMinutes = Number(minutes)
+    const safeMinutes = Number.isFinite(parsedMinutes) ? Math.trunc(parsedMinutes) : null
+
     const log = await prisma.studyLog.create({
-      data: { userId, content: String(content).trim().slice(0, 200) },
+      data: { userId, content: String(content).trim().slice(0, 200), minutes: safeMinutes },
     })
     return res.status(200).json({ log })
   }

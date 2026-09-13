@@ -57,6 +57,8 @@ model StudyLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String
+  // v2.0：勉強時間（分）。結果画面の合格率バリエーションに使う。未入力ならnull
+  minutes   Int?
   studyDate DateTime @default(now())
   createdAt DateTime @default(now())
 

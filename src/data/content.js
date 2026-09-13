@@ -79,11 +79,66 @@ export const NO_WORDS_RESPONSE = {
   positiveLine: '言葉にしたくない気持ちも、そのままで大丈夫。ここに来られたことがもう一歩です。',
 }
 
-export function getResponseForText(text, quickTag) {
-  if (quickTag === 'no-words') return NO_WORDS_RESPONSE
-  if (!text) return GENERIC_RESPONSE
+// v2.0：勉強時間との組み合わせで結果のバリエーションを増やす
+// 1日は最大1440分。それを超える／0未満の値は「秒単位で入力してしまった」等の
+// 想定外の組み合わせとみなし、新イレギュラーケースとしてフォールバックする
+export const STUDY_TIME_MAX_MINUTES = 1440
+
+function studyTier(minutes) {
+  if (minutes === null || minutes === undefined) return 'unknown'
+  if (!Number.isFinite(minutes) || minutes < 0 || minutes > STUDY_TIME_MAX_MINUTES) return 'out-of-range'
+  if (minutes >= 180) return 'intense'
+  if (minutes >= 60) return 'solid'
+  if (minutes >= 30) return 'light'
+  if (minutes > 0) return 'brief'
+  return 'none'
+}
+
+const TIER_MODIFIERS = {
+  intense: {
+    successRate: 100,
+    effortLine: '3時間以上、机に向かいました。その積み重ねはもう確かな実力になっています。',
+  },
+  solid: { successRate: null, effortLine: null },
+  light: {
+    successRate: 50,
+    effortLine: '短い時間でも机に向かえたこと、それ自体が一歩です。',
+  },
+  brief: {
+    successRate: 35,
+    effortLine: '少しでも手をつけられたのは立派な一歩です。明日はもう少し積み上げてみましょう。',
+  },
+  none: { successRate: null, effortLine: null },
+  unknown: { successRate: null, effortLine: null },
+}
+
+function applyStudyTier(base, minutes) {
+  const mod = TIER_MODIFIERS[studyTier(minutes)]
+  return {
+    ...base,
+    successRate: mod.successRate ?? base.successRate,
+    effortLine: mod.effortLine,
+  }
+}
+
+// 新イレギュラーケース：勉強時間が組み合わせの範囲外（例：秒単位の値が誤って入力された等）
+export const OUT_OF_RANGE_RESPONSE = {
+  id: 'out-of-range',
+  isOutOfRange: true,
+  positiveLine: 'もう少し頑張りましょう',
+  seniorComment:
+    '勉強時間の値がうまく認識できなかったようです。今日は「分」単位で、無理のない範囲を記録してみてくださいね。',
+  successRate: null,
+  qa: [],
+}
+
+export function getResponseForText(text, quickTag, minutes = null) {
+  if (studyTier(minutes) === 'out-of-range') return OUT_OF_RANGE_RESPONSE
+
+  if (quickTag === 'no-words') return applyStudyTier(NO_WORDS_RESPONSE, minutes)
+  if (!text) return applyStudyTier(GENERIC_RESPONSE, minutes)
   const hit = CATEGORIES.find((c) => c.keywords.some((k) => text.includes(k)))
-  return hit ?? GENERIC_RESPONSE
+  return applyStudyTier(hit ?? GENERIC_RESPONSE, minutes)
 }
 
 export function greetingForMood(mood) {

@@ -169,6 +169,22 @@ h1 {
   resize: vertical;
 }
 
+.studylog-minutes-input {
+  width: 100%;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+.effort-line {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
 .anxiety-textarea.over-limit {
   border-color: var(--danger);
 }

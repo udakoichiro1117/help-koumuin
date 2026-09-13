@@ -2,6 +2,8 @@ import ProgressGraph from './ProgressGraph'
 import ShareButton from './ShareButton'
 
 // ④結果の表示：前向きな一言＋合格実績＋積み上げグラフ
+// v2.0：勉強時間との組み合わせで結果にバリエーションを持たせる。
+// 新イレギュラーケース：組み合わせが範囲外のときは合格率を出さず、素直な応援メッセージにする
 export default function ResultScreen({ response, logs, onNext }) {
   const streak = logs.filter((l) => l.studyDate).length
   const streakText = `積み上げ ${streak}件`
@@ -10,10 +12,14 @@ export default function ResultScreen({ response, logs, onNext }) {
     <div className="screen result-screen">
       <h1>{response.positiveLine}</h1>
 
-      <div className="stat-card">
-        <p className="stat-number">{response.successRate}%</p>
-        <p className="stat-caption">同じ不安を抱えていた人が合格しています</p>
-      </div>
+      {response.effortLine && <p className="effort-line">{response.effortLine}</p>}
+
+      {response.successRate !== null && response.successRate !== undefined && (
+        <div className="stat-card">
+          <p className="stat-number">{response.successRate}%</p>
+          <p className="stat-caption">同じ不安を抱えていた人が合格しています</p>
+        </div>
+      )}
 
       <blockquote className="senior-comment">{response.seniorComment}</blockquote>
 

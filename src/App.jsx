@@ -19,6 +19,7 @@ export default function App() {
   const [mood, setMood] = useState('普通')
   const [anxiety, setAnxiety] = useState({ text: '', quickTag: null })
   const [studyLogs, setStudyLogs] = useState([])
+  const [studyMinutes, setStudyMinutes] = useState(null)
 
   useEffect(() => {
     async function bootstrap() {
@@ -68,21 +69,25 @@ export default function App() {
     setScreen('studylog')
   }
 
-  async function refreshStudyLogsAndGoToResult() {
+  async function refreshStudyLogsAndGoToResult(minutes) {
+    setStudyMinutes(minutes)
     const { logs } = await getStudyLogs(userId)
     setStudyLogs(logs)
     setScreen('result')
   }
 
-  async function handleStudyLogSubmit(content) {
-    await postStudyLog(userId, content)
-    await refreshStudyLogsAndGoToResult()
+  async function handleStudyLogSubmit({ content, minutes }) {
+    if (content) {
+      await postStudyLog(userId, content, minutes)
+    }
+    await refreshStudyLogsAndGoToResult(minutes)
   }
 
   function handleRestart() {
     setResumedMessage(null)
     setDraftText('')
     setAnxiety({ text: '', quickTag: null })
+    setStudyMinutes(null)
     setScreen('welcome')
   }
 
@@ -124,7 +129,7 @@ export default function App() {
   }
 
   if (screen === 'result') {
-    const response = getResponseForText(anxiety.text, anxiety.quickTag)
+    const response = getResponseForText(anxiety.text, anxiety.quickTag, studyMinutes)
     return <ResultScreen response={response} logs={studyLogs} onNext={() => setScreen('exit')} />
   }
 
