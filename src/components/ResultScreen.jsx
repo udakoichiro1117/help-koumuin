@@ -1,12 +1,14 @@
 import ProgressGraph from './ProgressGraph'
 import ShareButton from './ShareButton'
+import { buildDailySeries, currentStreak } from '../lib/streak'
 
 // ④結果の表示：前向きな一言＋合格実績＋積み上げグラフ
 // v2.0：勉強時間との組み合わせで結果にバリエーションを持たせる。
 // 新イレギュラーケース：組み合わせが範囲外のときは合格率を出さず、素直な応援メッセージにする
+// v3.0：シェア文言もProgressGraphと同じ「連続日数」を使う（以前はログ件数を誤って表示していた）
 export default function ResultScreen({ response, logs, onNext }) {
-  const streak = logs.filter((l) => l.studyDate).length
-  const streakText = `積み上げ ${streak}件`
+  const streak = currentStreak(buildDailySeries(logs))
+  const streakText = `積み上げ ${streak}日`
 
   return (
     <div className="screen result-screen">
