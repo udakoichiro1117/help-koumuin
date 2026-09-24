@@ -39,20 +39,25 @@ npm run dev
 
 ```mermaid
 graph LR
-    Browser["①ユーザーのブラウザ<br/>(スマホ・PC)"]
-    DNS["②DNS<br/>(電話帳)"]
-    Screen["③画面のファイル<br/>(Vite / Vercel静的ホスティング)"]
-    API["⑤api/<br/>(Vercel Functions・窓口係)"]
-    DB["⑥Postgres<br/>(Neon・保管係)"]
+    subgraph "画面を表示するまで"
+        Browser["ユーザーのブラウザ<br/>(スマホ・PC)"]
+        DNS["DNS<br/>(電話帳)"]
+        Vercel["Vercel<br/>(Webサーバー・静的ホスティング)"]
+    end
 
-    Browser -->|①URLを打つ| DNS
-    DNS -->|②Vercelの住所| Browser
-    Browser -->|③HTTPSリクエスト| Screen
-    Screen -->|④HTML・CSS・JS| Browser
-    Browser -->|⑤入力・JSON| API
-    API -->|JSON| Browser
-    API -->|Prisma経由の接続| DB
-    DB -->|データ| API
+    subgraph "データをやり取りするとき"
+        API["api/<br/>(Vercel Functions)"]
+        DB["Postgres<br/>(Neon)"]
+    end
+
+    Browser -->|①ドメイン名を問い合わせ| DNS
+    DNS -->|②IPアドレス| Browser
+    Browser -->|③HTTPSリクエスト| Vercel
+    Vercel -->|④HTML・CSS・JS| Browser
+    Browser -->|⑤リクエスト| API
+    API -->|⑥JSON| Browser
+    API -->|⑦Prisma経由のクエリ| DB
+    DB -->|⑧データ| API
 ```
 
-②〜⑥間の通信はHTTPSで暗号化されています。
+ブラウザ⇄Vercel（画面のファイル・api/）間はHTTPS、api/⇄DB（Neon）間も暗号化された接続です。DNS間の通信（①②）は対象外です。
