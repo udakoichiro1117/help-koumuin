@@ -34,3 +34,17 @@ npm install
 cp .env.local.example .env.local  # Vercel Dashboard の値を設定
 npm run dev
 ```
+
+## 構成図
+
+```mermaid
+graph LR
+    Browser["ユーザーのブラウザ<br/>(Vite + React)"]
+    API["api/<br/>(Vercel Functions)"]
+    DB["Postgres<br/>(Neon)"]
+
+    Browser -->|入力・匿名ID| API
+    API -->|JSON| Browser
+    API -->|Prisma経由の接続| DB
+    DB -->|データ| API
+```
