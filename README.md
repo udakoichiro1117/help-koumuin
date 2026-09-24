@@ -39,12 +39,20 @@ npm run dev
 
 ```mermaid
 graph LR
-    Browser["ユーザーのブラウザ<br/>(Vite + React)"]
-    API["api/<br/>(Vercel Functions)"]
-    DB["Postgres<br/>(Neon)"]
+    Browser["①ユーザーのブラウザ<br/>(スマホ・PC)"]
+    DNS["②DNS<br/>(電話帳)"]
+    Screen["③画面のファイル<br/>(Vite / Vercel静的ホスティング)"]
+    API["⑤api/<br/>(Vercel Functions・窓口係)"]
+    DB["⑥Postgres<br/>(Neon・保管係)"]
 
-    Browser -->|入力・匿名ID| API
+    Browser -->|①URLを打つ| DNS
+    DNS -->|②Vercelの住所| Browser
+    Browser -->|③HTTPSリクエスト| Screen
+    Screen -->|④HTML・CSS・JS| Browser
+    Browser -->|⑤入力・JSON| API
     API -->|JSON| Browser
     API -->|Prisma経由の接続| DB
     DB -->|データ| API
 ```
+
+②〜⑥間の通信はHTTPSで暗号化されています。
